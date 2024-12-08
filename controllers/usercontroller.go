@@ -44,10 +44,26 @@ func(uc *UserController) GetAll(ctx *gin.Context) {
 	 ctx.JSON(200, " ")
 }
 func(uc *UserController) UpdateUser(ctx *gin.Context){
-	 ctx.JSON(200, " ")
+	var user models.User
+	if err := ctx.ShouldBindJSON(&user); err!= nil{
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return 
+	}
+	err := uc.UserService.UpdateUser(&user)
+	if err!= nil{
+		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		return 
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message":"success"})
 }
 func(uc *UserController) DeleteUser(ctx *gin.Context) {
-	 ctx.JSON(200, " ")
+ username := ctx.Param("name")
+ err := uc.UserService.DeleteUser(&username)
+ if err != nil{
+	ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		return 
+ }
+	 ctx.JSON(http.StatusOK,gin.H{"message":"success"})
 }
 func(uc *UserController) registerUserRoutes(rg *gin.RouterGroup){
 	userroute := rg.Group("/user")
@@ -55,7 +71,7 @@ func(uc *UserController) registerUserRoutes(rg *gin.RouterGroup){
 	userroute.GET("/get/:name", uc.GetUser)
 	userroute.GET("/getall", uc.GetAll)
 	userroute.PATCH("/update", uc.UpdateUser)
-	userroute.DELETE("/update", uc.DeleteUser)
+	userroute.DELETE("/delete/:name", uc.DeleteUser)
 }
 	
 
