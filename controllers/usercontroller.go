@@ -41,7 +41,12 @@ func(uc *UserController) GetUser(ctx *gin.Context){
 }
 
 func(uc *UserController) GetAll(ctx *gin.Context) {
-	 ctx.JSON(200, " ")
+	users, err := uc.UserService.GetAll()
+	if err!= nil{
+		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		return 
+	}
+	 ctx.JSON(http.StatusOK, users)
 }
 func(uc *UserController) UpdateUser(ctx *gin.Context){
 	var user models.User
@@ -65,7 +70,7 @@ func(uc *UserController) DeleteUser(ctx *gin.Context) {
  }
 	 ctx.JSON(http.StatusOK,gin.H{"message":"success"})
 }
-func(uc *UserController) registerUserRoutes(rg *gin.RouterGroup){
+func(uc *UserController) RegisterUserRoutes(rg *gin.RouterGroup){
 	userroute := rg.Group("/user")
 	userroute.POST("/create", uc.CreateUser)
 	userroute.GET("/get/:name", uc.GetUser)
